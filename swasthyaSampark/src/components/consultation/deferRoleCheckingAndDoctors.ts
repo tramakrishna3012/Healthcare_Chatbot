@@ -5,8 +5,8 @@ import { defer } from "react-router-dom";
 
 async function roleChecking() {
     try {
-        let token = localStorage.getItem("token");
-        let [dataResponse, doctorDataResponse] = await Promise.all([
+        const token = localStorage.getItem("token");
+        const [dataResponse, doctorDataResponse] = await Promise.all([
             axios.post(`${BACKEND_URL}/api/auth/verify`, { token }),
             axios.post(`${BACKEND_URL}/api/consultation/getdoctor`, { token })
         ]);

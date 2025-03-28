@@ -5,8 +5,8 @@ import { defer } from "react-router-dom";
 
 async function roleChecking() {
   try {
-    let token = localStorage.getItem("token");
-    let data = await axios.post(`${BACKEND_URL}/api/auth/verify`, {
+    const token = localStorage.getItem("token");
+    const data = await axios.post(`${BACKEND_URL}/api/auth/verify`, {
       token,
     });
     console.log("roleChecking data:", data.data);

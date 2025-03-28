@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { GoogleLogin } from '@react-oauth/google';
+import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
 import axios from 'axios';
 import {BACKEND_URL} from "../services/api.ts";
 import DuplicateEmail from '../FlashyMessage/DuplicateEmail.js';
@@ -9,11 +9,18 @@ const DoctorLogin = ({ onLoginSuccess }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [isEmailDuplicate, setIsEmailDuplicate] = useState(false);
 
-    isLoading;
-    const handleGoogleLogin = async (credentialResponse) => {
+    interface AuthResponse {
+        token: string;
+    }
+
+    const handleGoogleLogin = async (credentialResponse: CredentialResponse): Promise<void> => {
         setIsLoading(true);
         try {
-            const { data } = await axios.post(
+            if (!credentialResponse.credential) {
+                console.error('No credential received');
+                return;
+            }
+            const { data } = await axios.post<AuthResponse>(
                 `${BACKEND_URL}/api/auth/generateTokenD`,
                 { token: credentialResponse.credential }
             );
@@ -40,14 +47,21 @@ const DoctorLogin = ({ onLoginSuccess }) => {
                     <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Doctor Sign In</h2>
                     <p className="text-gray-600 text-center mb-6">Manage your schedules and perform consultations efficiently.</p>
                     <div className="flex justify-center mb-6">
-                        <GoogleLogin
-                            onSuccess={handleGoogleLogin}
-                            onError={() => console.log('Google Login Failed')}
-                            theme="outline"
-                            size="large"
-                            shape="rectangular"
-                        />
-                    </div>
+                                        {isLoading ? (
+                                            <div className="flex items-center justify-center">
+                                                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-500"></div>
+                                                <span className="ml-2">Loading...</span>
+                                            </div>
+                                        ) : (
+                                            <GoogleLogin
+                                                onSuccess={handleGoogleLogin}
+                                                onError={() => console.log('Google Login Failed')}
+                                                theme="outline"
+                                                size="large"
+                                                shape="rectangular"
+                                            />
+                                        )}
+                                    </div>
                     {isEmailDuplicate && (
                         <DuplicateEmail message="A Patient Account with This Email Already Exists" />
                     )}

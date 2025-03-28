@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { GoogleLogin } from '@react-oauth/google';
+import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
 import axios from 'axios';
 import {BACKEND_URL} from "../services/api.ts";
 import DuplicateEmail from '../FlashyMessage/DuplicateEmail';
@@ -8,9 +8,18 @@ import PatientLogo from "../../../../public/icon/PatientLogo.tsx";
 const PatientLogin = ({ onLoginSuccess }) => {
     const [isEmailDuplicate, setIsEmailDuplicate] = useState(false);
 
-    const handleGoogleLogin = async (credentialResponse) => {
+    interface LoginResponse {
+        token: string;
+    }
+
+    const handleGoogleLogin = async (credentialResponse: CredentialResponse): Promise<void> => {
         try {
-            const { data } = await axios.post(
+            if (!credentialResponse.credential) {
+                console.error('No credential received');
+                return;
+            }
+            
+            const { data } = await axios.post<LoginResponse>(
                 `${BACKEND_URL}/api/auth/generateTokenP`,
                 { token: credentialResponse.credential }
             );
