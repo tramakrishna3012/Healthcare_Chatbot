@@ -1,6 +1,6 @@
 import fs from "fs";
-
 import path from "path";
+import process from "process";
 
 const excludeDirs = ['node_modules', 'dist', '.git'];
 
@@ -13,7 +13,7 @@ function printDirectoryStructure(dir, depth = 0, prefix = '') {
         const newPrefix = prefix + (isLast ? '└── ' : '├── ');
 
         if (!excludeDirs.includes(file)) {
-            console.log(prefix + (isLast ? '└── ' : '├── ') + file);
+            console.log(newPrefix + file);
             if (stats.isDirectory()) {
                 printDirectoryStructure(filePath, depth + 1, prefix + (isLast ? '    ' : '│   '));
             }
