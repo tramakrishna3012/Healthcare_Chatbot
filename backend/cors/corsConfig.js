@@ -1,6 +1,6 @@
 var corsOptions = {
 
-  origin: ["swasthya-sampark.vercel.app","https://www.swasthya-sampark.me"] // development
+  origin: ["http://localhost:5174","http://localhost:5173"] // development
+
 };
 module.exports = corsOptions;
-
