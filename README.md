@@ -203,10 +203,10 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE.txt) f
 
 ## Created By:-
 
-### T Rama Krishna
-### Sheikh Mohammad Atahar
-### Samarthjeet Singh Bharaj
-### Lavish Moor
+1. T Rama Krishna
+2. Sheikh Mohammad Atahar
+3. Samarthjeet Singh Bharaj
+4. Lavish Moor
 
 ## Contact
 
