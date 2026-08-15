@@ -52,7 +52,7 @@
 
 ## Introduction
 
-Swasthya-Sampark is a healthcare platform designed to connect patients with doctors for real-time symptom tracking, consultations, and AI-driven health advice. The project was developed as part of a hackathon entry for Technoverse 2024, where it reached the finalist stage among 500+ teams.
+Swasthya-Sampark is an AI-integrated healthcare system built to facilitate patient-doctor connections, real-time symptom tracking, and medical consultations. The system was successfully designed and deployed as our final year major project, demonstrating end-to-end full-stack development and machine learning integration.
 
 ## Modules
 
