@@ -23,8 +23,6 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
-
 // Routes
 app.use('/api/symptoms', symptomRoutes);
 
@@ -37,6 +35,8 @@ const imageToTextRouter = require('./routes/imageToText');
 app.use('/api/chat', chatRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/consultation', consultationRouter);
+app.use('/api/image-to-text', imageToTextRouter);
+
 const axios = require('axios');
 const fs = require('fs');
 
@@ -52,9 +52,10 @@ app.post('/predict', async (req, res) => {
     }
 });
 
-// Serve React Frontend static assets if built (for All-in-One deployment)
+// Serve React Frontend static assets (Swasthya-Sampark UI)
 const frontendDist = process.env.FRONTEND_DIST || path.join(__dirname, '../swasthyaSampark/dist');
 if (fs.existsSync(frontendDist)) {
+    logger.info(`Serving frontend from: ${frontendDist}`);
     app.use(express.static(frontendDist));
     app.get('*', (req, res, next) => {
         if (req.path.startsWith('/api') || req.path.startsWith('/predict') || req.path.startsWith('/socket.io')) {
@@ -62,6 +63,8 @@ if (fs.existsSync(frontendDist)) {
         }
         res.sendFile(path.join(frontendDist, 'index.html'));
     });
+} else {
+    app.use(express.static(path.join(__dirname, 'public')));
 }
 
 // Error handling
