@@ -2,8 +2,8 @@ import { useEffect, useCallback } from 'react';
 import io from 'socket.io-client';
 import {BACKEND_URL} from "../components/consultation/services/api.ts";
 
-const socket = io(BACKEND_URL, {
-    transports: ['websocket'],
+const socket = io(BACKEND_URL || undefined, {
+    transports: ['websocket', 'polling'],
     reconnection: true,
     reconnectionAttempts: 5
 });
