@@ -47,7 +47,7 @@ COPY --from=frontend-builder /frontend/dist ./frontend-dist
 
 # 4. Copy Startup Script
 COPY start.sh ./
-RUN chmod +x ./start.sh
+RUN sed -i 's/\r$//' ./start.sh && chmod +x ./start.sh
 
 # Koyeb default public port is 8000
 EXPOSE 8000
