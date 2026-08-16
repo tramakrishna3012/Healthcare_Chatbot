@@ -9,16 +9,11 @@ from collections import Counter
 # Initialize the FastAPI app
 app = FastAPI()
 
-origins = [
-    "http://localhost:5173",
-    "http://localhost",
-    "http://localhost:8000",
-
-]
+import os
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -76,4 +71,5 @@ def predict(request: SymptomsRequest):
 # Run the application
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)

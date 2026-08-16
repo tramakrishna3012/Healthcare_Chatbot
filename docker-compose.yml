@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:6.0
+    container_name: swasthya_mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: swasthya_sampark
+    volumes:
+      - mongodb_data:/data/db
+
+  # ML FastAPI Service (Port 8000)
+  ml-service:
+    build:
+      context: ./6ml
+      dockerfile: Dockerfile
+    container_name: swasthya_ml
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+
+  # Node.js Backend API & Socket.IO (Port 3001)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: swasthya_backend
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    depends_on:
+      - mongodb
+    env_file:
+      - ./backend/.env
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/swasthya_sampark
+      - PORT=3001
+
+  # React Frontend (Port 80 -> mapped to 5173 or 80)
+  frontend:
+    build:
+      context: ./swasthyaSampark
+      dockerfile: Dockerfile
+      args:
+        VITE_BACKEND_URL: http://localhost:3001
+        VITE_ML_URL: http://localhost:8000
+    container_name: swasthya_frontend
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+      - ml-service
+
+volumes:
+  mongodb_data:
