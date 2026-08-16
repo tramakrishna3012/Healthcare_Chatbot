@@ -2,13 +2,24 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const logger = require('../config/logger');
 const symptomDataset = require("../data/symptomDataset");
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY || process.env.API_KEY2;
+const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
+
+const getCandidateModels = () => {
+    const primary = process.env.MODEL_NAME || "gemini-1.5-flash";
+    const backup = process.env.MODEL_NAME2 || "gemini-1.5-pro";
+    const candidates = [primary, backup, "gemini-1.5-flash-latest", "gemini-1.5-flash", "gemini-2.0-flash", "gemini-pro"];
+    return Array.from(new Set(candidates.filter(Boolean)));
+};
 
 exports.expandSymptom = async (symptom) => {
+    if (!genAI) {
+        logger.error('Gemini API key is not configured');
+        return null;
+    }
+
     try {
         logger.info(`Expanding symptom: ${symptom}`);
-
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         const prompt = `
         You are a medical AI assistant with access to a comprehensive symptom dataset that maps diseases to their associated symptoms.
@@ -26,25 +37,29 @@ exports.expandSymptom = async (symptom) => {
         Do not include any explanatory text or additional information. Only provide the JSON object.
         If the initial symptom is very specific and strongly indicates a particular condition, 
         you may provide options that are diagnostic criteria or additional symptoms of that condition.
-        Remember to use the "${symptomDataset}" as your primary reference to maintain accuracy and relevance in your responses.Also do exclude the symptoms which are already present in "${symptom}"`;
+        Remember to use the "${symptomDataset}" as your primary reference to maintain accuracy and relevance in your responses. Also do exclude the symptoms which are already present in "${symptom}"`;
 
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const text = response.text();
+        const models = getCandidateModels();
+        let lastError = null;
 
-        let parsedResponse;
-        try {
-            // Remove Markdown code block syntax if present
-            const cleanedText = text.replace(/```json\n|\n```/g, '').trim();
-            parsedResponse = JSON.parse(cleanedText);
-        } catch (parseError) {
-            logger.error(`Error parsing Gemini API response: ${parseError.message}`);
-            logger.debug(`Raw response: ${text}`);
-            throw new Error('Failed to parse API response');
+        for (const modelName of models) {
+            try {
+                const model = genAI.getGenerativeModel({ model: modelName });
+                const result = await model.generateContent(prompt);
+                const response = await result.response;
+                const text = response.text();
+
+                const cleanedText = text.replace(/```json\n|\n```|```/g, '').trim();
+                const parsedResponse = JSON.parse(cleanedText);
+                logger.info(`Symptom expanded successfully using model ${modelName}: ${symptom}`);
+                return parsedResponse;
+            } catch (err) {
+                lastError = err;
+                logger.warn(`Model ${modelName} failed, trying next candidate: ${err.message}`);
+            }
         }
 
-        logger.info(`Symptom expanded successfully: ${symptom}`);
-        return parsedResponse;
+        throw lastError || new Error('All candidate models failed');
     } catch (error) {
         logger.error(`Error expanding symptom with Gemini API: ${error.message}`);
         return null;
@@ -52,12 +67,17 @@ exports.expandSymptom = async (symptom) => {
 };
 
 exports.checkApiHealth = async () => {
-    try {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-        await model.generateContent("Test");
-        return true;
-    } catch (error) {
-        logger.error(`Gemini API health check failed: ${error.message}`);
-        return false;
+    if (!genAI) return false;
+
+    const models = getCandidateModels();
+    for (const modelName of models) {
+        try {
+            const model = genAI.getGenerativeModel({ model: modelName });
+            await model.generateContent("ping");
+            return true;
+        } catch (error) {
+            // continue checking next model
+        }
     }
+    return false;
 };

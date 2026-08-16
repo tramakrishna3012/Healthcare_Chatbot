@@ -4,44 +4,12 @@ const socketIo = require('socket.io');
 const logger = require('./config/logger');
 const symptomService = require('./services/symptomService');
 const geminiAPI = require('./services/geminiAPI');
-const cors = require('cors');
-const corsConfig = require('./cors/corsConfig');
-const chatRouter = require('./routes/chat');
-const authRouter = require('./routes/auth');
-const consultationRouter = require('./routes/consultation');
-const imageToTextRouter = require('./routes/imageToText');
-const { connectDB } = require('./config/database');
-const express = require("express");
 
-const port = process.env.PORT || 3000;
-
+const port = process.env.PORT || 3001;
 const server = http.createServer(app);
 const io = socketIo(server);
 
 const MAX_ITERATIONS = 7;
-
-// Middleware
-app.use(cors(corsConfig));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Routes
-// app.use('/api/symptoms', symptomRoutes);
-app.use('/api/chat', chatRouter);
-app.use('/api/auth', authRouter);
-app.use('/api/consultation', consultationRouter);
-app.use('/api/image-to-text', imageToTextRouter);
-
-// Database connection
-connectDB();
-
-// Check Gemini API health every 5 minutes
-setInterval(async () => {
-    const isHealthy = await geminiAPI.checkApiHealth();
-    if (!isHealthy) {
-        logger.warn('Gemini API is not accessible');
-    }
-}, 5 * 60 * 1000);
 
 io.on('connection', async (socket) => {
     logger.info('New client connected');
