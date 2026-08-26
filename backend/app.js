@@ -50,7 +50,13 @@ if (fs.existsSync(frontendDist)) {
     logger.info(`Serving frontend from: ${frontendDist}`);
     app.use(express.static(frontendDist));
     app.get('*', (req, res, next) => {
-        if (req.path.startsWith('/api') || req.path.startsWith('/predict') || req.path.startsWith('/socket.io')) {
+        if (
+            req.path.startsWith('/api') ||
+            req.path.startsWith('/predict') ||
+            req.path.startsWith('/socket.io') ||
+            req.path.startsWith('/_vercel') ||
+            /\.[a-zA-Z0-9]+$/.test(req.path)
+        ) {
             return next();
         }
         res.sendFile(path.join(frontendDist, 'index.html'));

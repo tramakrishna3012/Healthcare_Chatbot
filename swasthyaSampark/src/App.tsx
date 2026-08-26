@@ -19,13 +19,8 @@ import deferRoleCheckingAndDoctors from "./components/consultation/deferRoleChec
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { Analytics } from "@vercel/analytics/react";
 import ServicesPage from "./pages/ServicesPage.tsx";
-
-// Define loader functions for routes that need them
-// const chatBotLoader = async () => {
-//     // You can fetch data here if needed
-//     // For now, we'll just return a static role
-//     return { role: "patient" };
-// };
+import PrivacyPolicyPage from "./pages/PrivacyPolicyPage.tsx";
+import TermsOfServicePage from "./pages/TermsOfServicePage.tsx";
 
 const router = createBrowserRouter([
     { path: "/", element: <LandingPage /> },
@@ -57,18 +52,24 @@ const router = createBrowserRouter([
         loader: deferRoleChecking,
     },
     { path: "/services", element: <ServicesPage/>},
+    { path: "/privacy-policy", element: <PrivacyPolicyPage /> },
+    { path: "/privacy", element: <PrivacyPolicyPage /> },
+    { path: "/terms-of-service", element: <TermsOfServicePage /> },
+    { path: "/terms", element: <TermsOfServicePage /> },
     { path: "*", element: <PageNotFound /> },
 ]);
 
 const googleClientId =
     (import.meta as any).env?.VITE_GOOGLE_CLIENT_ID ||
-    "854649438467-smldq7leffkpjdgsdkokq2t6cq0blp0k.apps.googleusercontent.com";
+    "926963252224-8dtmm9acr92712d9amrrqb3of7s28m20.apps.googleusercontent.com";
+
+const isVercel = typeof window !== 'undefined' && window.location.hostname.includes('vercel.app');
 
 function App() {
     return (
         <GoogleOAuthProvider clientId={googleClientId}>
             <RouterProvider router={router} />
-            <Analytics />
+            {isVercel && <Analytics />}
         </GoogleOAuthProvider>
     );
 }
