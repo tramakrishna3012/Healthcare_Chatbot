@@ -60,9 +60,13 @@ const router = createBrowserRouter([
     { path: "*", element: <PageNotFound /> },
 ]);
 
+const googleClientId =
+    (import.meta as any).env?.VITE_GOOGLE_CLIENT_ID ||
+    "1011414615826-gnek02s2mud1upst69nre87fkfpu7151.apps.googleusercontent.com";
+
 function App() {
     return (
-        <GoogleOAuthProvider clientId="1011414615826-gnek02s2mud1upst69nre87fkfpu7151.apps.googleusercontent.com">
+        <GoogleOAuthProvider clientId={googleClientId}>
             <RouterProvider router={router} />
             <Analytics />
         </GoogleOAuthProvider>
