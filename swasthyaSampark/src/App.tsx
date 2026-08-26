@@ -62,7 +62,7 @@ const router = createBrowserRouter([
 
 const googleClientId =
     (import.meta as any).env?.VITE_GOOGLE_CLIENT_ID ||
-    "1011414615826-gnek02s2mud1upst69nre87fkfpu7151.apps.googleusercontent.com";
+    "854649438467-smldq7leffkpjdgsdkokq2t6cq0blp0k.apps.googleusercontent.com";
 
 function App() {
     return (
