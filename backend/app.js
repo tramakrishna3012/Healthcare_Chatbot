@@ -13,14 +13,6 @@ const app = express();
 
 // Middleware
 app.use(cors());
-app.use((req, res, next) => {
-    res.setHeader(
-        'Content-Security-Policy',
-        "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; connect-src 'self' ws: wss:;"
-    );
-    next();
-});
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // Routes
